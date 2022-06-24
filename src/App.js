@@ -64,13 +64,13 @@ function App() {
 
 function SignIn() {
   return (
-    <button onClick={signInWithGoogle} >Sign in with Google</button>
+    <button className='ui green button' onClick={signInWithGoogle} >Sign in with Google</button>
   )
 }
 
 function SignOut() {
   return fbAuth.currentUser && (
-    <button onClick={() => fbAuth.signOut()} >Sign Out</button>
+    <button className='ui red button' onClick={() => fbAuth.signOut()} >Sign Out</button>
   )
 }
 

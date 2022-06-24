@@ -4,7 +4,7 @@ const ChatRoom = ({messages, deleteMessage, createMessage, setNewMsg, newMsg}) =
         <> 
           <div className="ui raised very padded text container segment">
             <div className="ui comments">
-              <h3 className="ui dividing header">Chats</h3>
+              <h3 className="ui dividing header">Super Chat</h3>
               {messages && messages.map(msg => 
                 <MessageDetails 
                   key={msg.id} 
