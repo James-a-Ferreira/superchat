@@ -1,0 +1,60 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Deploy to App Engine
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  gcloud:
+    if: ${{ github.event_name == 'push' || github.repository == github.event.pull_request.head.repo.full_name && github.actor != 'dependabot[bot]' }}
+    name: with setup-gcloud
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: google-github-actions/setup-gcloud@main
+      with:
+        project_id: ${{ secrets.GCP_PROJECT }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Update app.yaml
+      run: |-
+        echo "service: ${{ github.job }}-${{ github.run_number }}" >> ${{ github.workspace }}/superchat/app.yaml
+    - id: build
+      name: Build dist
+      run: |-
+        npm install
+        npm run build
+    - id: deploy
+      name: Deploy to App Engine
+      uses: ./
+      with:
+        version: gcloud
+        promote: false
+        working_directory: ${{ github.workspace }}/superchat/
+
+    - name: Test Output
+      run: |-
+        curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
+          --fail \
+          --location \
+          --retry 5 \
+          --retry-connrefused \
+          --retry-delay 5 \
+          --retry-max-time 300
+    - name: Clean Up
+      if: ${{ always() }}
+      run: |-
+        gcloud app services delete "${{ github.job }}-${{ github.run_number }}" \
+          --quiet \
+          --project="${{ secrets.GCP_PROJECT }}"
