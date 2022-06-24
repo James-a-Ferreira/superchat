@@ -1,5 +1,19 @@
 runtime: nodejs16 # or another supported version
 
+service: default
+
+handlers:
+  # Serve all static files with url ending with a file extension
+  - url: /(.*\..+)$
+    static_files: build/\1
+    upload: build/(.*\..+)$
+  # Catch all handler to index.html
+  - url: /.*
+    static_files: build/index.html
+    upload: build/index.html
+
+instance_class: F1
+
 env_variables:
   CI: false 
   REACT_APP_API_KEY: AIzaSyB7V6cD5bMf8FJhZ__I_s7q-U9jHm9bFGY
