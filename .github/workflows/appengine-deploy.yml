@@ -25,7 +25,7 @@ jobs:
       uses: 'google-github-actions/auth@v0'
       with:
         workload_identity_provider: 'principalSet://iam.googleapis.com/projects/438362869460/locations/global/workloadIdentityPools/superchat/*'
-        service_account: 'superchat2-61170@appspot.gserviceaccount.com'
+        service_account: 'github-deploy@superchat2-61170.iam.gserviceaccount.com'
 
     - id: 'deploy'
       uses: 'google-github-actions/deploy-appengine@v0'
