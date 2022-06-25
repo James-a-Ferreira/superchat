@@ -41,7 +41,7 @@ jobs:
       with:
         version: gcloud
         promote: false
-        working_directory: ${{ github.workspace }}/
+        working_directory: ./
 
     - name: Test Output
       run: |-
