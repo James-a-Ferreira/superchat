@@ -29,7 +29,7 @@ jobs:
 
     - name: Update app.yaml
       run: |-
-        echo "service: ${{ github.job }}-${{ github.run_number }}" >> ${{ github.workspace }}/example-app/app.yaml
+        echo "service: ${{ github.job }}-${{ github.run_number }}" >> ${{ github.workspace }}/app.yaml
     - id: build
       name: Build dist
       run: |-
@@ -41,7 +41,7 @@ jobs:
       with:
         version: gcloud
         promote: false
-        working_directory: ${{ github.workspace }}/superchat/
+        working_directory: ${{ github.workspace }}/
 
     - name: Test Output
       run: |-
