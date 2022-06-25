@@ -21,41 +21,11 @@ jobs:
       id-token: 'write'
     runs-on: 'ubuntu-latest'
     steps:
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v0'
-      with:
-        workload_identity_provider: 'principalSet://iam.googleapis.com/projects/438362869460/locations/global/workloadIdentityPools/superchat/*'
-        service_account: 'github-deploy@superchat2-61170.iam.gserviceaccount.com'
 
-    - name: Update app.yaml
-      run: |-
-        echo "service: ${{ github.job }}-${{ github.run_number }}" >> ${{ github.workspace }}/app.yaml
-    - id: build
-      name: Build dist
-      run: |-
-        npm install
-        npm run build
-    - id: deploy
-      name: Deploy to App Engine
-      uses: 'google-github-actions/deploy-appengine@v0'
+    - name: Deploy an App Engine app
+      id: deploy-app
+      uses: google-github-actions/deploy-appengine@v0.1.0
       with:
-        version: gcloud
-        promote: false
-        working_directory: ./
-
-    - name: Test Output
-      run: |-
-        curl '${{ steps.deploy.outputs.url }}' \
-          --silent \
-          --fail \
-          --location \
-          --retry 5 \
-          --retry-connrefused \
-          --retry-delay 5 \
-          --retry-max-time 300
-    - name: Clean Up
-      if: ${{ always() }}
-      run: |-
-        gcloud app services delete "${{ github.job }}-${{ github.run_number }}" \
-          --quiet \
-          --project="${{ secrets.GCP_PROJECT }}"
+        project: ${{ secrets.GCP_PROJECT }}
+        deliverables: ./app.yaml
+        credentials: ${{ secrets.GCP_SA_KEY }}
