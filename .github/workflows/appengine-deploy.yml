@@ -27,9 +27,35 @@ jobs:
         workload_identity_provider: 'principalSet://iam.googleapis.com/projects/438362869460/locations/global/workloadIdentityPools/superchat/*'
         service_account: 'github-deploy@superchat2-61170.iam.gserviceaccount.com'
 
-    - id: 'deploy'
+    - name: Update app.yaml
+      run: |-
+        echo "service: ${{ github.job }}-${{ github.run_number }}" >> ${{ github.workspace }}/example-app/app.yaml
+    - id: build
+      name: Build dist
+      run: |-
+        npm install
+        npm run build
+    - id: deploy
+      name: Deploy to App Engine
       uses: 'google-github-actions/deploy-appengine@v0'
+      with:
+        version: gcloud
+        promote: false
+        working_directory: ${{ github.workspace }}/superchat/
 
-    # Example of using the output
-    - id: 'test'
-      run: 'curl "${{ steps.deploy.outputs.url }}"'
+    - name: Test Output
+      run: |-
+        curl '${{ steps.deploy.outputs.url }}' \
+          --silent \
+          --fail \
+          --location \
+          --retry 5 \
+          --retry-connrefused \
+          --retry-delay 5 \
+          --retry-max-time 300
+    - name: Clean Up
+      if: ${{ always() }}
+      run: |-
+        gcloud app services delete "${{ github.job }}-${{ github.run_number }}" \
+          --quiet \
+          --project="${{ secrets.GCP_PROJECT }}"
